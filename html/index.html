@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Dark Slider</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Основные стили остаются без изменений */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background: #0a0a0a;
+            color: #fff;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.nav-links {
+			display: flex;
+			gap: 1rem;
+		}
+
+		.nav-button {
+			color: #fff;
+			text-decoration: none;
+			padding: 0.5rem 1rem;
+			border: 2px solid #fff;
+			border-radius: 5px;
+			transition: background-color 0.3s ease, color 0.3s ease;
+		}
+
+		.nav-button:hover {
+			background-color: #fff;
+			color: #0a0a0a;
+		}
+
+        .slides-container {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .slide video,
+        .slide img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0);
+            z-index: 2;
+        }
+
+        .slide::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.4));
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            padding: 2rem;
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
+        }
+
+        .slide.active .content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Стили для футера и кнопок */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1000;
+            transition: all 0.5s ease;
+        }
+
+        .footer.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .cta-button,
+        .social-button {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            background: #00ff88;
+            color: #000;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .cta-button {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: auto;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+        }
+
+        .cta-button i {
+            font-size: 1.2rem;
+        }
+
+        .cta-button:hover,
+        .social-button:hover {
+            transform: scale(1.1);
+        }
+
+        /* Новые стили для пятого слайда */
+        .slide:last-child .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: auto; /* Высота по содержимому */
+            width: 90%; /* Ширина области */
+            max-width: 600px; /* Максимальная ширина */
+            max-height: 350px; /* Максимальная высота */
+            background: rgba(0, 0, 0, 0.6); /* Затемнение фона */
+            backdrop-filter: blur(10px); /* Размытие фона */
+            padding: 2rem;
+            border-radius: 20px;
+            position: absolute;
+            top: 65%; /* Центрирование по вертикали */
+            left: 50%; /* Центрирование по горизонтали */
+            transform: translate(-50%, -50%); /* Точное центрирование */
+        }
+
+        .slide:last-child h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .slide:last-child .social-buttons {
+            display: flex;
+            align-items: center; /* Выравнивание кнопок по одной линии */
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .slide:last-child .cta-button {
+            margin-top: 0; /* Убираем отступ сверху */
+        }
+    </style>
+</head>
+<body>
+	<nav class="navbar">
+		<h1>DarkSlide</h1>
+		<div class="nav-links">
+			<a href="schools.html" class="nav-button">Schools</a>
+		</div>
+	</nav>
+
+    <div class="slides-container">
+        <!-- Слайды с обновленным содержимым -->
+        <div class="slide active">
+            <video autoplay muted loop>
+                <source src="img/peko.webm" type="video/webm">
+            </video>
+            <div class="content" style="margin-top: 20%">
+                <h2>Discover Nature</h2>
+                <p>Explore the beauty of wild landscapes and untouched ecosystems</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <img src="img/wallpaperflare.com_wallpaper_2.jpg" alt="Art">
+            <div class="content" style="margin-top: 20%">
+                <h2>Future Tech</h2>
+                <p>Innovative solutions for tomorrow's challenges</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <img src="img/wallpaperflare.com_wallpaper.jpg" alt="Art">
+            <div class="content" style="margin-top: 20%">
+                <h2>Urban Life</h2>
+                <p>Experience the pulse of modern cities</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <video autoplay muted loop>
+                <source src="img/katysha.webm" type="video/webm">
+            </video>
+            <div class="content" style="margin-top: 20%">
+                <h2>Beyond Earth</h2>
+                <p>Journey through the cosmos and discover new frontiers</p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <img src="img/wallpaperflare.com_wallpaper_1.jpg" alt="Art">
+            <div class="content">
+                <h2>Присоединяйся к нам</h2>
+                <div class="social-buttons">
+                    <a href="https://telegram.org" class="social-button" target="_blank">
+                        <i class="fab fa-telegram"></i>
+                    </a>
+                    <a href="https://discord.gg/suBzt5UC" class="cta-button">
+                        <i class="fab fa-discord"></i>
+                        Мы в Discord
+                    </a>
+                    <a href="https://vk.com/gupbattleproject" class="social-button" target="_blank">
+                        <i class="fab fa-vk"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <a href="https://telegram.org" class="social-button" target="_blank">
+            <i class="fab fa-telegram"></i>
+        </a>
+        <button class="cta-button" onclick="window.open('https://discord.gg/suBzt5UC', '_blank')">
+            <i class="fab fa-discord"></i>
+            Мы в Discord
+        </button>
+        <a href="https://vk.com" class="social-button" target="_blank">
+            <i class="fab fa-vk"></i>
+        </a>
+    </footer>
+
+    <script>
+        class Slider {
+            constructor() {
+                this.slides = Array.from(document.querySelectorAll('.slide'));
+                this.footer = document.querySelector('.footer');
+                this.currentIndex = 0;
+                this.isAnimating = false;
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.updateSlideClasses();
+                this.handleFooter();
+            }
+
+            setupEventListeners() {
+                window.addEventListener('wheel', this.handleWheel.bind(this), { passive: false });
+                window.addEventListener('touchstart', this.handleTouchStart.bind(this));
+                window.addEventListener('touchend', this.handleTouchEnd.bind(this));
+            }
+
+            handleWheel(e) {
+                if (this.isAnimating) return;
+                e.preventDefault();
+                
+                const delta = Math.sign(e.deltaY);
+                if (delta > 0) {
+                    this.next();
+                } else {
+                    this.prev();
+                }
+            }
+
+            handleTouchStart(e) {
+                this.touchStartY = e.touches[0].clientY;
+            }
+
+            handleTouchEnd(e) {
+                if (this.isAnimating) return;
+                
+                const touchEndY = e.changedTouches[0].clientY;
+                const delta = Math.sign(this.touchStartY - touchEndY);
+                
+                if (Math.abs(delta) > 0) {
+                    if (delta > 0) {
+                        this.next();
+                    } else {
+                        this.prev();
+                    }
+                }
+            }
+
+            next() {
+                if (this.currentIndex < this.slides.length - 1 && !this.isAnimating) {
+                    this.currentIndex++;
+                    this.animateSlides('next');
+                }
+            }
+
+            prev() {
+                if (this.currentIndex > 0 && !this.isAnimating) {
+                    this.currentIndex--;
+                    this.animateSlides('prev');
+                }
+            }
+
+            animateSlides(direction) {
+                this.isAnimating = true;
+                this.updateSlideClasses(direction);
+                
+                setTimeout(() => {
+                    this.isAnimating = false;
+                    this.cleanupSlideClasses();
+                }, 1000);
+            }
+
+            updateSlideClasses(direction) {
+                this.slides.forEach((slide, index) => {
+                    slide.classList.remove('active', 'prev', 'next');
+                    
+                    if (index === this.currentIndex) {
+                        slide.classList.add('active');
+                    } else if (index === this.currentIndex - 1) {
+                        slide.classList.add('prev');
+                    } else if (index === this.currentIndex + 1) {
+                        slide.classList.add('next');
+                    }
+                });
+                this.handleFooter();
+            }
+
+            cleanupSlideClasses() {
+                this.slides.forEach(slide => {
+                    slide.classList.remove('prev', 'next');
+                });
+            }
+
+            handleFooter() {
+                if (this.currentIndex === this.slides.length - 1) {
+                    this.footer.classList.add('hidden');
+                } else {
+                    this.footer.classList.remove('hidden');
+                }
+            }
+        }
+
+        new Slider();
+    </script>
+</body>
+</html>

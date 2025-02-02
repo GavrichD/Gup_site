@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Dark Slider</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Основные стили */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background: #0a0a0a;
+            color: #fff;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+        .nav-button {
+            color: #fff;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 2px solid #fff;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .nav-button:hover {
+            background-color: #fff;
+            color: #0a0a0a;
+        }
+        .slides-container {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        .slide video,
+        .slide img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+        }
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0);
+            z-index: 2;
+        }
+        .slide::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.4));
+        }
+        /* Стрелочка справа */
+        .arrow {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 2rem;
+            color: #fff;
+            transition: transform 0.3s ease;
+            z-index: 10; /* Убедимся, что стрелочка выше других элементов */
+        }
+        .arrow:hover {
+            transform: translateY(-50%) rotate(15deg);
+        }
+        /* Скрытая область справа */
+        .hidden-area {
+            position: absolute;
+            right: 100%; /* Начальное положение за правой границей */
+            top: 0;
+            width: 70%; /* Ширина области */
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            transition: right 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            overflow-y: auto;
+            z-index: 5; /* Убедимся, что область выше фона */
+        }
+        .hidden-area.active {
+            right: 30%; /* Появление справа налево */
+        }
+		/* Стили для админ-окна */
+		.admin-controls {
+			display: none;
+			position: relative;
+		}
+
+		.gear-button {
+			position: absolute;
+			bottom: 1rem;
+			right: 1rem;
+			background: #00ff88;
+			border: none;
+			color: #000;
+			font-size: 1.5rem;
+			padding: 0.5rem;
+			border-radius: 50%;
+			cursor: pointer;
+			transition: transform 0.3s ease;
+		}
+
+		.gear-button:hover {
+			transform: scale(1.1);
+		}
+
+		.admin-input {
+			width: 400px; /* Увеличиваем ширину */
+			height: 200px; /* Увеличиваем высоту */
+			margin-top: 1rem;
+			padding: 1rem;
+			border: 2px solid #fff;
+			border-radius: 5px;
+			background: rgba(255, 255, 255, 0.1);
+			color: #fff;
+			resize: none;
+			font-size: 1rem; /* Увеличиваем шрифт */
+		}
+
+		.save-button {
+			margin-top: 1rem;
+			padding: 0.5rem 1rem;
+			background: #00ff88;
+			border: none;
+			color: #000;
+			font-size: 1rem;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+
+		.save-button:hover {
+			background: #00cc66;
+		}
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>DarkSlide</h1>
+        <div class="nav-links">
+            <h1>Доступные школы</h1>
+        </div>
+    </nav>
+    <div class="slides-container">
+        <div class="slide active">
+            <img src="img/wallpaperflare.com_wallpaper_1.jpg" alt="Art">
+            <i class="fas fa-arrow-left arrow"></i>
+            <div class="hidden-area">
+                <h2>Содержимое для слайда 1</h2>
+                <p>Это пример содержимого, которое появится при клике на стрелочку.</p>
+                <div class="admin-controls" style="display: none;">
+                    <button class="gear-button">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <textarea class="admin-input" placeholder="Введите текст..." style="display: none;"></textarea>
+                    <button class="save-button" style="display: none;">Сохранить</button>
+                </div>
+            </div>
+        </div>
+        <div class="slide">
+            <img src="img/wallpaperflare.com_wallpaper_2.jpg" alt="Art">
+            <i class="fas fa-arrow-left arrow"></i>
+            <div class="hidden-area">
+                <h2>Содержимое для слайда 2</h2>
+                <p>Это содержимое для второго слайда.</p>
+                <div class="admin-controls" style="display: none;">
+                    <button class="gear-button">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <textarea class="admin-input" placeholder="Введите текст..." style="display: none;"></textarea>
+                    <button class="save-button" style="display: none;">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <a href="https://telegram.org" class="social-button" target="_blank">
+            <i class="fab fa-telegram"></i>
+        </a>
+        <button class="cta-button" onclick="window.open('https://discord.gg/suBzt5UC', '_blank')">
+            <i class="fab fa-discord"></i>
+            Мы в Discord
+        </button>
+        <a href="https://vk.com" class="social-button" target="_blank">
+            <i class="fab fa-vk"></i>
+        </a>
+    </footer>
+
+    <!-- Скрипт -->
+    <script>
+        // Класс AdminManager (перемещён в начало)
+        class AdminManager {
+            constructor() {
+                this.arrowClickCount = 0; // Счетчик нажатий на стрелочку
+                this.adminSlides = new Map(); // Хранилище для слайдов с админ-правами
+            }
+            handleArrowClick(slide) {
+                this.arrowClickCount++;
+                console.log(`Нажатий: ${this.arrowClickCount}`);
+                if (this.arrowClickCount >= 20 && !this.adminSlides.has(slide)) {
+                    console.log("Предоставление админ-прав");
+                    this.grantAdminRights(slide);
+                }
+            }
+            grantAdminRights(slide) {
+                const adminControls = slide.querySelector('.admin-controls');
+                if (adminControls) {
+                    adminControls.style.display = 'block';
+                    console.log("Кнопка-шестерёнка должна быть видна");
+                    this.adminSlides.set(slide, true); // Отмечаем слайд как админский
+                } else {
+                    console.error("Элемент .admin-controls не найден!");
+                }
+            }
+            showAdminInput(button) {
+                const adminControls = button.closest('.admin-controls');
+                const textarea = adminControls.querySelector('.admin-input');
+                const saveButton = adminControls.querySelector('.save-button');
+                textarea.style.display = 'block';
+                saveButton.style.display = 'block';
+            }
+            saveAdminText(button) {
+                const adminControls = button.closest('.admin-controls');
+                const textarea = adminControls.querySelector('.admin-input');
+                const text = textarea.value;
+
+                // Получаем номер слайда
+                const slide = adminControls.closest('.slide');
+                const slideIndex = Array.from(document.querySelectorAll('.slide')).indexOf(slide);
+
+                // Сохраняем текст в файл
+                this.saveTextToFile(text, slideIndex);
+            }
+			saveTextToFile(text, slideIndex) {
+				// Отправляем данные на сервер
+				fetch('/save-text', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ slideIndex, text }),
+				})
+					.then(response => response.text())
+					.then(message => {
+						console.log(message); // Сообщение от сервера
+					})
+					.catch(error => {
+						console.error('Ошибка при отправке данных на сервер:', error);
+					});
+			}
+            loadTableFromText(slideIndex) {
+                const tableData = "Пример данных из файла"; // Заглушка для демонстрации
+                const table = document.createElement('table');
+                table.innerHTML = `
+                    <tr>
+                        <th>Заголовок</th>
+                        <td>${tableData}</td>
+                    </tr>
+                `;
+                const slide = document.querySelectorAll('.slide')[slideIndex];
+                const hiddenArea = slide.querySelector('.hidden-area');
+                hiddenArea.appendChild(table);
+            }
+        }
+
+        // Инициализация админ-менеджера
+        const adminManager = new AdminManager();
+
+        // Функция для отображения/скрытия скрытой области
+        function toggleHiddenArea(button) {
+            console.log("toggleHiddenArea вызвана"); // Отладочное сообщение
+            const slide = button.closest('.slide');
+            if (!slide) {
+                console.error("Слайд не найден!");
+                return;
+            }
+
+            const hiddenArea = slide.querySelector('.hidden-area');
+            if (!hiddenArea) {
+                console.error("Скрытая область не найдена!");
+                return;
+            }
+
+            hiddenArea.classList.toggle('active');
+            console.log("Скрытая область переключена");
+
+            // Увеличиваем счетчик нажатий и проверяем админ-права
+            adminManager.handleArrowClick(slide);
+        }
+
+		// Функция для показа/скрытия текстового поля администратора
+		function showAdminInput(button) {
+			const adminControls = button.closest('.admin-controls');
+			const textarea = adminControls.querySelector('.admin-input');
+			const saveButton = adminControls.querySelector('.save-button');
+
+			// Переключаем видимость текстового поля и кнопки "Сохранить"
+			if (textarea.style.display === 'block') {
+				textarea.style.display = 'none';
+				saveButton.style.display = 'none';
+				console.log("Админ-окно скрыто");
+			} else {
+				textarea.style.display = 'block';
+				saveButton.style.display = 'block';
+				console.log("Админ-окно показано");
+			}
+		}
+
+        // Функция для сохранения текста администратора
+        function saveAdminText(button) {
+            adminManager.saveAdminText(button);
+        }
+
+        // Класс Slider
+        class Slider {
+            constructor() {
+                this.slides = Array.from(document.querySelectorAll('.slide'));
+                this.footer = document.querySelector('.footer');
+                this.currentIndex = 0;
+                this.isAnimating = false;
+                this.init();
+            }
+            init() {
+                this.setupEventListeners();
+                this.updateSlideClasses();
+                this.handleFooter();
+            }
+            setupEventListeners() {
+                window.addEventListener('wheel', this.handleWheel.bind(this), { passive: false });
+                window.addEventListener('touchstart', this.handleTouchStart.bind(this));
+                window.addEventListener('touchend', this.handleTouchEnd.bind(this));
+            }
+            handleWheel(e) {
+                if (this.isAnimating) return;
+                e.preventDefault();
+                const delta = Math.sign(e.deltaY);
+                if (delta > 0) {
+                    this.next();
+                } else {
+                    this.prev();
+                }
+            }
+            handleTouchStart(e) {
+                this.touchStartY = e.touches[0].clientY;
+            }
+            handleTouchEnd(e) {
+                if (this.isAnimating) return;
+                const touchEndY = e.changedTouches[0].clientY;
+                const delta = Math.sign(this.touchStartY - touchEndY);
+                if (Math.abs(delta) > 0) {
+                    if (delta > 0) {
+                        this.next();
+                    } else {
+                        this.prev();
+                    }
+                }
+            }
+            next() {
+                if (this.currentIndex < this.slides.length - 1 && !this.isAnimating) {
+                    this.currentIndex++;
+                    this.animateSlides('next');
+                }
+            }
+            prev() {
+                if (this.currentIndex > 0 && !this.isAnimating) {
+                    this.currentIndex--;
+                    this.animateSlides('prev');
+                }
+            }
+            animateSlides(direction) {
+                this.isAnimating = true;
+                this.updateSlideClasses(direction);
+
+                // Сброс состояния скрытых областей при переключении слайдов
+                this.slides.forEach(slide => {
+                    const hiddenArea = slide.querySelector('.hidden-area');
+                    hiddenArea.classList.remove('active');
+
+                    // Скрываем кнопку-шестерёнку
+                    const adminControls = slide.querySelector('.admin-controls');
+                    if (adminControls) {
+                        adminControls.style.display = 'none';
+                    }
+                });
+
+                setTimeout(() => {
+                    this.isAnimating = false;
+                    this.cleanupSlideClasses();
+                }, 1000);
+            }
+            updateSlideClasses(direction) {
+                this.slides.forEach((slide, index) => {
+                    slide.classList.remove('active', 'prev', 'next');
+                    if (index === this.currentIndex) {
+                        slide.classList.add('active');
+                    } else if (index === this.currentIndex - 1) {
+                        slide.classList.add('prev');
+                    } else if (index === this.currentIndex + 1) {
+                        slide.classList.add('next');
+                    }
+                });
+                this.handleFooter();
+            }
+            cleanupSlideClasses() {
+                this.slides.forEach(slide => {
+                    slide.classList.remove('prev', 'next');
+                });
+            }
+            handleFooter() {
+                if (this.currentIndex === this.slides.length - 1) {
+                    this.footer.classList.add('hidden');
+                } else {
+                    this.footer.classList.remove('hidden');
+                }
+            }
+        }
+
+        // Добавляем обработчики событий через JavaScript
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("DOM полностью загружен"); // Отладочное сообщение
+
+            // Инициализация слайдера
+            new Slider();
+
+            // Находим все стрелочки и добавляем обработчики событий
+            const arrows = document.querySelectorAll('.arrow');
+            arrows.forEach(arrow => {
+                arrow.addEventListener('click', () => {
+                    console.log("Стрелочка нажата"); // Отладочное сообщение
+                    toggleHiddenArea(arrow);
+                });
+            });
+
+            // Находим все кнопки-шестерёнки и добавляем обработчики событий
+            const gearButtons = document.querySelectorAll('.gear-button');
+            gearButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    console.log("Кнопка-шестерёнка нажата"); // Отладочное сообщение
+                    showAdminInput(button);
+                });
+            });
+
+            // Находим все кнопки "Сохранить" и добавляем обработчики событий
+            const saveButtons = document.querySelectorAll('.save-button');
+            saveButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    console.log("Кнопка 'Сохранить' нажата"); // Отладочное сообщение
+                    saveAdminText(button);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

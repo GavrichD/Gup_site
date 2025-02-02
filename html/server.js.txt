@@ -1,0 +1,47 @@
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const app = express();
+const port = 3000;
+
+// Путь к папке txt_collector
+const txtCollectorPath = path.join(__dirname, 'txt_collector');
+
+// Создаём папку txt_collector, если её нет
+if (!fs.existsSync(txtCollectorPath)) {
+    fs.mkdirSync(txtCollectorPath);
+}
+
+// Middleware для парсинга JSON
+app.use(express.json());
+
+// Роут для сохранения текстового файла
+app.post('/save-text', (req, res) => {
+    const { slideIndex, text } = req.body;
+
+    if (!text || !slideIndex) {
+        return res.status(400).send('Необходимо передать текст и номер слайда.');
+    }
+
+    // Имя файла
+    const fileName = `slide_${slideIndex}_content.txt`;
+    const filePath = path.join(txtCollectorPath, fileName);
+
+    // Сохраняем текст в файл
+    fs.writeFile(filePath, text, (err) => {
+        if (err) {
+            console.error('Ошибка при записи файла:', err);
+            return res.status(500).send('Ошибка при сохранении файла.');
+        }
+        console.log(`Файл ${fileName} успешно сохранён.`);
+        res.send('Файл успешно сохранён.');
+    });
+});
+
+// Статические файлы
+app.use(express.static(path.join(__dirname)));
+
+// Запуск сервера
+app.listen(port, () => {
+    console.log(`Сервер запущен на http://localhost:${port}`);
+});
